@@ -2,7 +2,8 @@
 
 #include <string>
 #include <vector>
-#include <regex>
+#include <regex> //pra usar regex_replace
+#include <algorithm> //pra usar transform
 
 class Montador {
 public:
@@ -11,11 +12,10 @@ public:
 		std::string operacao;
 		std::vector<std::string> operando;
 
-		TokensDaLinha(const std::string &label, const std::string &operacao, const std::vector<std::string> &operando,
-			int numeroDaLinha);
+		//TokensDaLinha(const std::string &label, const std::string &operacao, const std::vector<std::string> &operando, int numeroDaLinha);
 	};
 
-	std::vector<TokensDaLinha> listaDeTokensDoArquivo;
+	std::vector<TokensDaLinha> listaDeTokens;
 
 	void adicionarTokenDaLinha(TokensDaLinha linha);
 
@@ -28,6 +28,8 @@ public:
 	std::string RemoveEspacosEmBrancoExtras(std::string arquivoConteudo); //remove vários casos de espaços em branco como duplos espaços ou espaços antes de \n
 
 	std::string JuntaLabelEOperacao(std::string arquivo); //quando se tem uma label sozinha em uma linha, coloca a linha com tokens abaixo dela na mesma linha da linha da label
+
+	void SeparaTokens(std::string conteudoArquivo); //preenche o vetor listaDeTokens com as instruções separadas por tokens
 
 	Montador();
 	~Montador();

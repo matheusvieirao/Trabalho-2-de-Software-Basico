@@ -10,11 +10,10 @@ Montador::Montador(){
 Montador::~Montador(){
 }
 
-Montador::TokensDaLinha::TokensDaLinha(const std::string & label, const std::string & operacao, const std::vector<std::string>& operando, int numeroDaLinha){
-}
+//Montador::TokensDaLinha::TokensDaLinha(const std::string & label, const std::string & operacao, const std::vector<std::string>& operando, int numeroDaLinha) {}
 
 void Montador::adicionarTokenDaLinha(TokensDaLinha linha){
-	Montador::listaDeTokensDoArquivo.push_back(linha);
+	Montador::listaDeTokens.push_back(linha);
 }
 
 void Montador::PreProcessamento(std::string conteudoArquivo) {
@@ -24,6 +23,8 @@ void Montador::PreProcessamento(std::string conteudoArquivo) {
 	conteudoArquivo = RemoveTabulacoes(conteudoArquivo);
 	conteudoArquivo = RemoveEspacosEmBrancoExtras(conteudoArquivo);
 	conteudoArquivo = JuntaLabelEOperacao(conteudoArquivo);
+
+	SeparaTokens(conteudoArquivo);
 
 }
 
@@ -43,10 +44,7 @@ std::string Montador::RemoveComentarios(std::string arquivoConteudo) {
 }
 
 std::string Montador::RemoveTabulacoes(std::string fileString) {
-	// Remove tabulações transformando-as em espaços em branco, caso os espaços em branco sejam redundantes, 
-	// o passo de remover espaços em branco irá remover a redundância.
 	fileString = std::regex_replace(fileString, std::regex("\t"), " ");
-	// fileString.erase(std::remove(fileString.begin(), fileString.end(), '\t'), fileString.end());
 	return fileString;
 }
 
@@ -100,8 +98,7 @@ std::string Montador::RemoveEspacosEmBrancoExtras(std::string arquivoConteudo) {
 	return arquivoConteudo;
 }
 
-std::string Montador::JuntaLabelEOperacao(std::string arquivo)
-{
+std::string Montador::JuntaLabelEOperacao(std::string arquivo) {
 	std::string::size_type posicao = arquivo.find(":\n");
 	while (posicao != std::string::npos) {
 		arquivo[posicao + 1] = ' ';
@@ -109,3 +106,37 @@ std::string Montador::JuntaLabelEOperacao(std::string arquivo)
 	}
 	return arquivo;
 }
+
+void Montador::SeparaTokens(std::string conteudoArquivo) {
+	TokensDaLinha tokens_linha_aux;
+	char linha_aux[51];
+	int i;
+
+	std::transform(conteudoArquivo.begin(), conteudoArquivo.end(), conteudoArquivo.begin(), ::toupper); //transforma tudo pra upercase
+
+	int tam_arquivo = conteudoArquivo.size();
+	int sair = false;
+	int index = -1;
+	while (index != tam_arquivo) {
+		i = 0;
+		index++;
+		int a = conteudoArquivo.size();
+		while (conteudoArquivo[index] != '\n' && index != tam_arquivo) {
+			//ja fazer a analise aqui se encontrar o primeiro ' ' ou ':' e colocar no lugar certo de tokens_linha_aux
+			linha_aux[i] = conteudoArquivo[index];
+			i++;
+			index++;
+			if (index == 50) {
+				std::cout << "Erro. Cada linha de instrucao do codigo .asm deve ter no maximo 50 chars" << std::endl;
+				getchar();
+			}
+		}
+		linha_aux[i] = '\0';
+		
+
+	}
+//	tokens_linha_aux.label = ParseLabel();
+
+
+}
+
