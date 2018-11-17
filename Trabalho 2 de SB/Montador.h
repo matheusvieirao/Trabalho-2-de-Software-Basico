@@ -10,7 +10,8 @@ public:
 	struct TokensDaLinha {
 		std::string label;
 		std::string operacao;
-		std::vector<std::string> operando;
+		std::string operando1;
+		std::string operando2;
 
 		//TokensDaLinha(const std::string &label, const std::string &operacao, const std::vector<std::string> &operando, int numeroDaLinha);
 	};

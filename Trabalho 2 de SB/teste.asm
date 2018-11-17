@@ -1,6 +1,4 @@
-
-
-SECTION		 TEXT
+INICIO: SECTION		 TEXT
 LOAD     DOIS ;acsklfjlalfjfjklslkfajsfljf
 ADD    TRES  ;ddddd
 STOP

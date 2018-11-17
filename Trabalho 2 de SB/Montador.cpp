@@ -17,7 +17,6 @@ void Montador::adicionarTokenDaLinha(TokensDaLinha linha){
 }
 
 void Montador::PreProcessamento(std::string conteudoArquivo) {
-	std::vector<TokensDaLinha> tokensDaLinha;
 
 	conteudoArquivo = RemoveComentarios(conteudoArquivo);
 	conteudoArquivo = RemoveTabulacoes(conteudoArquivo);
@@ -108,8 +107,9 @@ std::string Montador::JuntaLabelEOperacao(std::string arquivo) {
 }
 
 void Montador::SeparaTokens(std::string conteudoArquivo) {
-	TokensDaLinha tokens_linha_aux;
-	char linha_aux[51];
+	TokensDaLinha tokens_linha;
+	//char linha_aux[51];
+	char token_aux[51];
 	int i;
 
 	std::transform(conteudoArquivo.begin(), conteudoArquivo.end(), conteudoArquivo.begin(), ::toupper); //transforma tudo pra upercase
@@ -117,26 +117,70 @@ void Montador::SeparaTokens(std::string conteudoArquivo) {
 	int tam_arquivo = conteudoArquivo.size();
 	int sair = false;
 	int index = -1;
+	bool tem_label;
+	int flag_token = 0;
+	int aux;
+	int posicao_token_aux;
+	char proximo_char;
 	while (index != tam_arquivo) {
 		i = 0;
 		index++;
 		int a = conteudoArquivo.size();
+		tem_label = false;
+		flag_token = 0;
+		posicao_token_aux = 0;
+		//pega uma linha inteira nesse while
 		while (conteudoArquivo[index] != '\n' && index != tam_arquivo) {
-			//ja fazer a analise aqui se encontrar o primeiro ' ' ou ':' e colocar no lugar certo de tokens_linha_aux
-			linha_aux[i] = conteudoArquivo[index];
+			//ja fazer a analise aqui se encontrar o primeiro ' ' ou ':' e colocar no lugar certo de tokens_linha
+			//linha_aux[i] = char_atual;
+			token_aux[posicao_token_aux] = conteudoArquivo[index];
+			proximo_char = conteudoArquivo[index+1];
+
+			//se entrar em qualquer uma dessas condiçoes, é pq achou um token
+			if (proximo_char == ':') {
+				tem_label = true;
+				token_aux[posicao_token_aux+1] = '\0';
+				tokens_linha.label = token_aux;
+				flag_token++;
+				posicao_token_aux = -1;
+				index++;
+			}
+			else if (proximo_char == ' ' || proximo_char == '\n' || index + 1 == tam_arquivo) {
+				token_aux[posicao_token_aux+1] = '\0';
+
+				if (tem_label) {
+					aux = flag_token - 1;
+				}
+				else {
+					aux = flag_token;
+				}
+				
+				if (aux == 0) {
+					tokens_linha.operacao = token_aux;
+				}
+				else if (aux == 1) {
+					tokens_linha.operando1 = token_aux;
+				}
+				else if (aux == 2) {
+					tokens_linha.operando2 = token_aux;
+				}
+				
+				flag_token++;
+				posicao_token_aux = -1;
+				if (proximo_char == ' ') {
+					index++;
+				}
+			}
+
+			posicao_token_aux++;
 			i++;
 			index++;
-			if (index == 50) {
-				std::cout << "Erro. Cada linha de instrucao do codigo .asm deve ter no maximo 50 chars" << std::endl;
-				getchar();
-			}
 		}
-		linha_aux[i] = '\0';
-		
-
+		listaDeTokens.push_back(tokens_linha);
+		tokens_linha.label = "";
+		tokens_linha.operacao = "";
+		tokens_linha.operando1 = "";
+		tokens_linha.operando2 = "";
 	}
-//	tokens_linha_aux.label = ParseLabel();
-
-
 }
 
