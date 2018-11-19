@@ -10,7 +10,7 @@ Montador::Montador(){
 Montador::~Montador(){
 }
 
-//Montador::TokensDaLinha::TokensDaLinha(const std::string & label, const std::string & operacao, const std::vector<std::string>& operando, int numeroDaLinha) {}
+//Montador::TokensDaLinha::TokensDaLinha(const std::string & label, const std::string & arg0, const std::vector<std::string>& operando, int numeroDaLinha) {}
 
 void Montador::adicionarTokenDaLinha(TokensDaLinha linha){
 	Montador::listaDeTokens.push_back(linha);
@@ -108,79 +108,71 @@ std::string Montador::JuntaLabelEOperacao(std::string arquivo) {
 
 void Montador::SeparaTokens(std::string conteudoArquivo) {
 	TokensDaLinha tokens_linha;
-	//char linha_aux[51];
+	int tam_arquivo = conteudoArquivo.size();
+	char proximo_char;
+	int i = -1; //é usada pra percorrer o arquivo char por char
+	bool tem_label; //se a primeira instrução da linha atual é uma label
 	char token_aux[51];
-	int i;
+	int i_token; //é usada pra percorrer o novo token
+	int posicao_token = 0; //se for o primeiro token da linha = 0, se for o segundo token da linha = 1...
+	int posicao_token_sem_label; //mesma coisa de posicao_token mas desconsiderando a label se existir na linha
 
 	std::transform(conteudoArquivo.begin(), conteudoArquivo.end(), conteudoArquivo.begin(), ::toupper); //transforma tudo pra upercase
 
-	int tam_arquivo = conteudoArquivo.size();
-	int sair = false;
-	int index = -1;
-	bool tem_label;
-	int flag_token = 0;
-	int aux;
-	int posicao_token_aux;
-	char proximo_char;
-	while (index != tam_arquivo) {
-		i = 0;
-		index++;
-		int a = conteudoArquivo.size();
+	while (i != tam_arquivo) {
+		i++;
 		tem_label = false;
-		flag_token = 0;
-		posicao_token_aux = 0;
-		//pega uma linha inteira nesse while
-		while (conteudoArquivo[index] != '\n' && index != tam_arquivo) {
-			//ja fazer a analise aqui se encontrar o primeiro ' ' ou ':' e colocar no lugar certo de tokens_linha
-			//linha_aux[i] = char_atual;
-			token_aux[posicao_token_aux] = conteudoArquivo[index];
-			proximo_char = conteudoArquivo[index+1];
+		posicao_token = 0;
+		i_token = 0;
+		//trabalha linha por linha esse while
+		while (conteudoArquivo[i] != '\n' && i != tam_arquivo) {
+			token_aux[i_token] = conteudoArquivo[i];
+			proximo_char = conteudoArquivo[i+1];
 
 			//se entrar em qualquer uma dessas condiçoes, é pq achou um token
 			if (proximo_char == ':') {
 				tem_label = true;
-				token_aux[posicao_token_aux+1] = '\0';
+				token_aux[i_token+1] = '\0';
 				tokens_linha.label = token_aux;
-				flag_token++;
-				posicao_token_aux = -1;
-				index++;
+				posicao_token++;
+				i_token = -1;
+				i++;
 			}
-			else if (proximo_char == ' ' || proximo_char == '\n' || index + 1 == tam_arquivo) {
-				token_aux[posicao_token_aux+1] = '\0';
+			else if (proximo_char == ' ' || proximo_char == '\n' || i + 1 == tam_arquivo) {
+				token_aux[i_token+1] = '\0';
 
 				if (tem_label) {
-					aux = flag_token - 1;
+					posicao_token_sem_label = posicao_token - 1;
 				}
 				else {
-					aux = flag_token;
+					posicao_token_sem_label = posicao_token;
 				}
 				
-				if (aux == 0) {
-					tokens_linha.operacao = token_aux;
+				if (posicao_token_sem_label == 0) {
+					tokens_linha.arg0 = token_aux;
 				}
-				else if (aux == 1) {
-					tokens_linha.operando1 = token_aux;
+				else if (posicao_token_sem_label == 1) {
+					tokens_linha.arg1 = token_aux;
 				}
-				else if (aux == 2) {
-					tokens_linha.operando2 = token_aux;
+				else if (posicao_token_sem_label == 2) {
+					tokens_linha.arg2 = token_aux;
 				}
 				
-				flag_token++;
-				posicao_token_aux = -1;
+				posicao_token++;
+				i_token = -1;
 				if (proximo_char == ' ') {
-					index++;
+					i++;
 				}
 			}
 
-			posicao_token_aux++;
+			i_token++;
 			i++;
-			index++;
 		}
 		listaDeTokens.push_back(tokens_linha);
 		tokens_linha.label = "";
-		tokens_linha.operacao = "";
-		tokens_linha.operando1 = "";
-		tokens_linha.operando2 = "";
+		tokens_linha.arg0 = "";
+		tokens_linha.arg1 = "";
+		tokens_linha.arg2 = "";
 	}
 }
 

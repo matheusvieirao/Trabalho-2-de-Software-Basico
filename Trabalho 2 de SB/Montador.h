@@ -8,12 +8,10 @@
 class Montador {
 public:
 	struct TokensDaLinha {
-		std::string label;
-		std::string operacao;
-		std::string operando1;
-		std::string operando2;
-
-		//TokensDaLinha(const std::string &label, const std::string &operacao, const std::vector<std::string> &operando, int numeroDaLinha);
+		std::string label; //label da instruçao (o que vem antes de ":")
+		std::string arg0; //primeiro argumento depois da label. Geralmente é a operação
+		std::string arg1; //segundo argumento depois da label. Geralmente é o primeiro operando
+		std::string arg2; //terceiro argumento depois da label. Geralmente é o segundo operando
 	};
 
 	std::vector<TokensDaLinha> listaDeTokens;
@@ -30,7 +28,7 @@ public:
 
 	std::string JuntaLabelEOperacao(std::string arquivo); //quando se tem uma label sozinha em uma linha, coloca a linha com tokens abaixo dela na mesma linha da linha da label
 
-	void SeparaTokens(std::string conteudoArquivo); //preenche o vetor listaDeTokens com as instruções separadas por tokens
+	void SeparaTokens(std::string conteudoArquivo); //preenche o vetor listaDeTokens com as instruções separadas por tokens.
 
 	Montador();
 	~Montador();
