@@ -4,6 +4,9 @@
 #include <vector>
 #include <regex> //pra usar regex_replace
 #include <algorithm> //pra usar transform
+#include <unordered_map>
+
+#include <iostream> //usada pra testar
 
 class Montador {
 public:
@@ -29,6 +32,8 @@ public:
 	std::string JuntaLabelEOperacao(std::string arquivo); //quando se tem uma label sozinha em uma linha, coloca a linha com tokens abaixo dela na mesma linha da linha da label
 
 	void SeparaTokens(std::string conteudoArquivo); //preenche o vetor listaDeTokens com as instruções separadas por tokens.
+
+	void TraducaoParaIA32(); // Para funcionar corretamente listaDeTokens deve já estar preenchida corretamente (depois do método PreProcessamento)
 
 	Montador();
 	~Montador();

@@ -1,7 +1,6 @@
 #include "pch.h"
 #include "Montador.h"
 
-#include <iostream>
 
 Montador::Montador(){
 }
@@ -137,6 +136,7 @@ void Montador::SeparaTokens(std::string conteudoArquivo) {
 				posicao_token++;
 				i_token = -1;
 				i++;
+				i++;
 			}
 			else if (proximo_char == ' ' || proximo_char == '\n' || i + 1 == tam_arquivo) {
 				token_aux[i_token+1] = '\0';
@@ -173,6 +173,51 @@ void Montador::SeparaTokens(std::string conteudoArquivo) {
 		tokens_linha.arg0 = "";
 		tokens_linha.arg1 = "";
 		tokens_linha.arg2 = "";
+	}
+}
+
+void Montador::TraducaoParaIA32() {
+	std::string conteudoSaida;
+	std::unordered_map<std::string, std::string> simbolos;
+	std::unordered_map<std::string, std::string>::const_iterator simbolo_especifico;
+	std::string label_aux, arg0_aux, arg1_aux, arg2_aux;
+
+	//int tamanhoLista = listaDeTokens.size();
+	//for (int i = 0; i < tamanhoLista; i++) {
+
+	//A primeira passagem é para salvar os valores associados com EQU para que IF funcione independente da posição que for colocado
+	for (auto linha = listaDeTokens.begin(); linha != listaDeTokens.end(); linha++) {
+		if (linha->arg0 == "EQU") {
+			simbolos.emplace(linha->label, linha->arg1);
+		}
+	}
+
+	for (auto linha = listaDeTokens.begin(); linha != listaDeTokens.end(); linha++) {
+		label_aux = linha->label;
+		arg0_aux = linha->arg0;
+		arg1_aux = linha->arg1;
+		arg2_aux = linha->arg2;
+		//apenas retira o ":"
+		if (arg0_aux == "EQU") {
+			conteudoSaida.append(label_aux + ' ' + arg0_aux + ' ' + arg1_aux + '\n');
+		}
+		//se for "IF 1" le a linha de baixo
+		else if (arg0_aux == "IF") {
+			simbolo_especifico = simbolos.find(arg1_aux);
+			//entra se encontrou o simbolo na tabela de simbolos
+			if (simbolo_especifico != simbolos.end()) {
+				//nao incluir a linha abaixo
+				if (std::stoi(simbolo_especifico->second) != 1) {
+					linha++;
+				}
+			}
+			else {
+				//nao incluir a linha abaixo
+				if (std::stoi(arg1_aux) != 1) {
+					linha++;
+				}
+			}
+		}
 	}
 }
 
