@@ -218,6 +218,17 @@ void Montador::TraducaoParaIA32() {
 				}
 			}
 		}
+		// "VALOR: CONST PI" fica "%assign VALOR PI"
+		else if (arg0_aux == "CONST") {
+			// TODO ver qual opcao é a certa
+			//conteudoSaida.append("%assign " + label_aux + ' ' + arg1_aux + '\n');
+			//conteudoSaida.append(label_aux + " DW " + arg1_aux + '\n');
+		}
+		else if (arg0_aux == "SPACE") {
+			if (arg1_aux == "")
+				arg1_aux = '1';
+			conteudoSaida.append(label_aux + " RESB " + arg1_aux + '\n');
+		}
 	}
 }
 
