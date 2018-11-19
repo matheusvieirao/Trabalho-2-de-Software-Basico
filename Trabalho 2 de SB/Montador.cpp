@@ -222,13 +222,29 @@ void Montador::TraducaoParaIA32() {
 		else if (arg0_aux == "CONST") {
 			// TODO ver qual opcao é a certa
 			//conteudoSaida.append("%assign " + label_aux + ' ' + arg1_aux + '\n');
-			//conteudoSaida.append(label_aux + " DW " + arg1_aux + '\n');
+			conteudoSaida.append(label_aux + " DW " + arg1_aux + '\n');
 		}
+		// "PTR: SPACE 3" fica "PTR RESB 3"
 		else if (arg0_aux == "SPACE") {
 			if (arg1_aux == "")
 				arg1_aux = '1';
 			conteudoSaida.append(label_aux + " RESB " + arg1_aux + '\n');
 		}
+		else if (arg0_aux == "SECTION") {
+			if (label_aux != "") {
+				conteudoSaida.append(label_aux + ": ");
+			}
+			if (arg1_aux == "TEXT") {
+				conteudoSaida.append("section .text\n_start:\n");
+			}
+			else if (arg1_aux == "BSS") {
+				conteudoSaida.append("section .bss\n");
+			}
+			else if (arg1_aux == "DATA") {
+				conteudoSaida.append("section .data\n");
+			}
+		}
 	}
+	printf("a");
 }
 
