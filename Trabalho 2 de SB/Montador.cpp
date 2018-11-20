@@ -180,7 +180,7 @@ void Montador::TraducaoParaIA32() {
 	std::string conteudoSaida;
 	std::unordered_map<std::string, std::string> simbolos;
 	std::unordered_map<std::string, std::string>::const_iterator simbolo_especifico;
-	std::string label_aux, arg0_aux, arg1_aux, arg2_aux;
+	std::string label, arg0, arg1, arg2;
 
 	//int tamanhoLista = listaDeTokens.size();
 	//for (int i = 0; i < tamanhoLista; i++) {
@@ -193,17 +193,21 @@ void Montador::TraducaoParaIA32() {
 	}
 
 	for (auto linha = listaDeTokens.begin(); linha != listaDeTokens.end(); linha++) {
-		label_aux = linha->label;
-		arg0_aux = linha->arg0;
-		arg1_aux = linha->arg1;
-		arg2_aux = linha->arg2;
+		label = linha->label;
+		arg0 = linha->arg0;
+		arg1 = linha->arg1;
+		arg2 = linha->arg2;
+
+
+		
+
 		//apenas retira o ":"
-		if (arg0_aux == "EQU") {
-			conteudoSaida.append(label_aux + ' ' + arg0_aux + ' ' + arg1_aux + '\n');
+		if (arg0 == "EQU") {
+			conteudoSaida.append(label + ' ' + arg0 + ' ' + arg1 + '\n');
 		}
 		//se for "IF 1" le a linha de baixo
-		else if (arg0_aux == "IF") {
-			simbolo_especifico = simbolos.find(arg1_aux);
+		else if (arg0 == "IF") {
+			simbolo_especifico = simbolos.find(arg1);
 			//entra se encontrou o simbolo na tabela de simbolos
 			if (simbolo_especifico != simbolos.end()) {
 				//nao incluir a linha abaixo
@@ -213,85 +217,96 @@ void Montador::TraducaoParaIA32() {
 			}
 			else {
 				//nao incluir a linha abaixo
-				if (std::stoi(arg1_aux) != 1) {
+				if (std::stoi(arg1) != 1) {
 					linha++;
 				}
 			}
 		}
-		// "VALOR: CONST PI" fica "%assign VALOR PI"
-		else if (arg0_aux == "CONST") {
+		else if (arg0 == "CONST") {
 			// TODO ver qual opcao é a certa
-			//conteudoSaida.append("%assign " + label_aux + ' ' + arg1_aux + '\n');
-			conteudoSaida.append(label_aux + " DW " + arg1_aux + '\n');
+			//conteudoSaida.append("%assign " + label + ' ' + arg1 + '\n');
+			conteudoSaida.append(label + " DW " + arg1 + '\n');
 		}
 		// "PTR: SPACE 3" fica "PTR RESB 3"
-		else if (arg0_aux == "SPACE") {
-			if (arg1_aux == "")
-				arg1_aux = '1';
-			conteudoSaida.append(label_aux + " RESB " + arg1_aux + '\n');
+		else if (arg0 == "SPACE") {
+			if (arg1 == "")
+				arg1 = '1';
+			conteudoSaida.append(label + " RESB " + arg1 + '\n');
 		}
-		else if (arg0_aux == "SECTION") {
-			if (label_aux != "") {
-				conteudoSaida.append(label_aux + ": ");
-			}
-			if (arg1_aux == "TEXT") {
+		//colocamos essa condição aqui pq EQU, CONST e SPACE usam label de uma meneira diferente das outras instruções
+		else if (label != "") {
+			conteudoSaida.append(label + ": ");
+		}
+		
+		
+		if (arg0 == "SECTION") {
+			if (arg1 == "TEXT") {
 				conteudoSaida.append("section .text\n_start:\n");
 			}
-			else if (arg1_aux == "BSS") {
+			else if (arg1 == "BSS") {
 				conteudoSaida.append("section .bss\n");
 			}
-			else if (arg1_aux == "DATA") {
+			else if (arg1 == "DATA") {
 				conteudoSaida.append("section .data\n");
 			}
 		}
 		// le numero inteiro com sinal de 32 bits
-		else if (arg0_aux == "INPUT") {
+		else if (arg0 == "INPUT") {
 			conteudoSaida.append("mov eax, 3\n"); // 3 é a instrução de read
 			conteudoSaida.append("mov ebx, 0\n");
-			conteudoSaida.append("mov ecx, " + arg1_aux + "\n");
+			conteudoSaida.append("mov ecx, " + arg1 + "\n");
 			conteudoSaida.append("mov edx, 4\n"); //inteiro tem 4 bytes
 			conteudoSaida.append("int 80h\n");
 		}
 		// um char de 8 bits
-		else if (arg0_aux == "C_INPUT") {
+		else if (arg0 == "C_INPUT") {
 			conteudoSaida.append("mov eax, 3\n");
 			conteudoSaida.append("mov ebx, 0\n");
-			conteudoSaida.append("mov ecx, " + arg1_aux + "\n");
+			conteudoSaida.append("mov ecx, " + arg1 + "\n");
 			conteudoSaida.append("mov edx, 1\n"); //char tem 1 byte
 			conteudoSaida.append("int 80h\n");
 		}
 		// input de string com o tamanho determinado pelo segundo operando
-		else if (arg0_aux == "S_INPUT") {
+		else if (arg0 == "S_INPUT") {
 			conteudoSaida.append("mov eax, 3\n");
 			conteudoSaida.append("mov ebx, 0\n");
-			conteudoSaida.append("mov ecx, " + arg1_aux + "\n");
-			conteudoSaida.append("mov edx, " + arg2_aux + "\n"); //tamanho da string
+			conteudoSaida.append("mov ecx, " + arg1 + "\n");
+			conteudoSaida.append("mov edx, " + arg2 + "\n"); //tamanho da string
 			conteudoSaida.append("int 80h\n");
 		}
 		// le numero inteiro com sinal de 32 bits
-		else if (arg0_aux == "OUTPUT") {
+		else if (arg0 == "OUTPUT") {
 			conteudoSaida.append("mov eax, 4\n"); // 4 é a instrução de write
 			conteudoSaida.append("mov ebx, 1\n");
-			conteudoSaida.append("mov ecx, " + arg1_aux + "\n");
+			conteudoSaida.append("mov ecx, " + arg1 + "\n");
 			conteudoSaida.append("mov edx, 4\n"); //inteiro tem 4 bytes
 			conteudoSaida.append("int 80h\n");
 		}
 		// um char de 8 bits
-		else if (arg0_aux == "C_OUTPUT") {
+		else if (arg0 == "C_OUTPUT") {
 			conteudoSaida.append("mov eax, 4\n");
 			conteudoSaida.append("mov ebx, 1\n");
-			conteudoSaida.append("mov ecx, " + arg1_aux + "\n");
+			conteudoSaida.append("mov ecx, " + arg1 + "\n");
 			conteudoSaida.append("mov edx, 1\n"); //char tem 1 byte
 			conteudoSaida.append("int 80h\n");
 		}
 		// output de string com o tamanho determinado pelo segundo operando
-		else if (arg0_aux == "S_OUTPUT") {
+		else if (arg0 == "S_OUTPUT") {
 			conteudoSaida.append("mov eax, 3\n");
 			conteudoSaida.append("mov ebx, 0\n");
-			conteudoSaida.append("mov ecx, " + arg1_aux + "\n");
-			conteudoSaida.append("mov edx, " + arg2_aux + "\n"); // tamanho da string
+			conteudoSaida.append("mov ecx, " + arg1 + "\n");
+			conteudoSaida.append("mov edx, " + arg2 + "\n"); // tamanho da string
 			conteudoSaida.append("int 80h\n");
 		}
+		// carrega no acumulador (EAX) o valor (assume-se que DWORD) que esta em um endereco de memoria
+		else if (arg0 == "LOAD") {
+			conteudoSaida.append("mov DWORD eax, " + arg1 + "\n");
+		}
+		else if (arg0 == "STORE") {
+			conteudoSaida.append("mov [" + arg1 + "], eax\n");
+		}
+
 	}
+	printf("a");
 }
 
