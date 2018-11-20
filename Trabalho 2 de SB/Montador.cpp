@@ -244,7 +244,30 @@ void Montador::TraducaoParaIA32() {
 				conteudoSaida.append("section .data\n");
 			}
 		}
+		// le numero inteiro com sinal de 32 bits
+		else if (arg0_aux == "INPUT") {
+			conteudoSaida.append("mov eax, 3\n"); // 3 é a instrução de read
+			conteudoSaida.append("mov ebx, 0\n");
+			conteudoSaida.append("mov ecx, " + arg1_aux + "\n");
+			conteudoSaida.append("mov edx, 4\n"); //inteiro tem 4 bytes
+			conteudoSaida.append("int 80h\n");
+		}
+		// um char de 8 bits
+		else if (arg0_aux == "C_INPUT") {
+			conteudoSaida.append("mov eax, 3\n");
+			conteudoSaida.append("mov ebx, 0\n");
+			conteudoSaida.append("mov ecx, " + arg1_aux + "\n");
+			conteudoSaida.append("mov edx, 1\n"); //char tem 1 byte
+			conteudoSaida.append("int 80h\n");
+		}
+		// S_INPUT  endereço_de_memoria_source  tamanho_da_string
+		else if (arg0_aux == "S_INPUT") {
+			conteudoSaida.append("mov eax, 3\n");
+			conteudoSaida.append("mov ebx, 0\n");
+			conteudoSaida.append("mov ecx, " + arg1_aux + "\n");
+			conteudoSaida.append("mov edx, " + arg2_aux + "\n"); //char tem 1 byte
+			conteudoSaida.append("int 80h\n");
+		}
 	}
-	printf("a");
 }
 
