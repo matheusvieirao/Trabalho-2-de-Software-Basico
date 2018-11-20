@@ -250,6 +250,9 @@ void Montador::TraducaoParaIA32() {
 				conteudoSaida.append("section .data\n");
 			}
 		}
+		else if (arg0 == "STOP") {
+			conteudoSaida.append("mov eax, 1\nmov ebx, 0\nint 80h");
+		}
 		// le numero inteiro com sinal de 32 bits
 		else if (arg0 == "INPUT") {
 			conteudoSaida.append("mov eax, 3\n"); // 3 é a instrução de read
@@ -305,7 +308,10 @@ void Montador::TraducaoParaIA32() {
 		else if (arg0 == "STORE") {
 			conteudoSaida.append("mov [" + arg1 + "], eax\n");
 		}
-
+		else if (arg0 == "COPY") {
+			conteudoSaida.append("mov " + arg2 + ", " + arg1 + "\n");
+		}
+		else if ()
 	}
 	printf("a");
 }
