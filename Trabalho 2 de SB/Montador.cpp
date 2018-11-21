@@ -251,7 +251,7 @@ void Montador::TraducaoParaIA32() {
 			}
 		}
 		else if (arg0 == "STOP") {
-			conteudoSaida.append("mov eax, 1\nmov ebx, 0\nint 80h");
+			conteudoSaida.append("mov eax, 1\nmov ebx, 0\nint 80h\n");
 		}
 		// le numero inteiro com sinal de 32 bits
 		else if (arg0 == "INPUT") {
@@ -311,7 +311,40 @@ void Montador::TraducaoParaIA32() {
 		else if (arg0 == "COPY") {
 			conteudoSaida.append("mov " + arg2 + ", " + arg1 + "\n");
 		}
-		else if ()
+		//pulo incondicional
+		else if (arg0 == "JMP") {
+			conteudoSaida.append("jmp " + arg1 + "\n");
+		}
+		// pula se acumulador < 0
+		else if (arg0 == "JMPN") {
+			conteudoSaida.append("cmp eax, 0");
+			conteudoSaida.append("jg " + arg1 + "\n");
+		}
+		// pula se acumulador > 0
+		else if (arg0 == "JMPP") {
+			conteudoSaida.append("cmp eax, 0");
+			conteudoSaida.append("jl " + arg1 + "\n");
+		}
+		// pula se acumulador == 0
+		else if (arg0 == "JMPZ") {
+			conteudoSaida.append("cmp eax, 0");
+			conteudoSaida.append("jz " + arg1 + "\n");
+		}
+		else if (arg0 == "ADD") {
+			conteudoSaida.append("add eax, [" + arg1 + "]\n");
+		}
+		else if (arg0 == "SUB") {
+			conteudoSaida.append("sub eax, [" + arg1 + "]\n");
+		}
+		// imul multiplica (com sinal) EAX pelo conteudo na memoria da variável e salva em EDX:EAX
+		else if (arg0 == "MULT") {
+			conteudoSaida.append("imul [" + arg1 + "]\n");
+		}
+		// divide EDX:EAX pelo conteudo na memória da variavel e salva em EAX e o resto em EDX .acc / []
+		else if (arg0 == "DIV") {
+			//extender o sinal de edx de acordo com eax
+			conteudoSaida.append("idiv [" + arg1 + "]\n");
+		}
 	}
 	printf("a");
 }
