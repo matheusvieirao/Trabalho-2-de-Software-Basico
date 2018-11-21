@@ -8,7 +8,7 @@
 
 #include <iostream> //usada pra testar
 
-class Montador {
+class Tradutor {
 public:
 	struct TokensDaLinha {
 		std::string label; //label da instruçao (o que vem antes de ":")
@@ -33,9 +33,9 @@ public:
 
 	void SeparaTokens(std::string conteudoArquivo); //preenche o vetor listaDeTokens com as instruções separadas por tokens.
 
-	void TraducaoParaIA32(); // Para funcionar corretamente listaDeTokens deve já estar preenchida corretamente (depois do método PreProcessamento)
+	std::string TraducaoParaIA32(); // Para funcionar corretamente listaDeTokens deve já estar preenchida corretamente (depois do método PreProcessamento)
 
-	Montador();
-	~Montador();
+	Tradutor();
+	~Tradutor();
 };
 

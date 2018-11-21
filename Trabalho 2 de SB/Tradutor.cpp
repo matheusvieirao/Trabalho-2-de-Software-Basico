@@ -1,21 +1,21 @@
 #include "pch.h"
-#include "Montador.h"
+#include "Tradutor.h"
 
 
-Montador::Montador(){
+Tradutor::Tradutor(){
 }
 
 
-Montador::~Montador(){
+Tradutor::~Tradutor(){
 }
 
-//Montador::TokensDaLinha::TokensDaLinha(const std::string & label, const std::string & arg0, const std::vector<std::string>& operando, int numeroDaLinha) {}
+//Tradutor::TokensDaLinha::TokensDaLinha(const std::string & label, const std::string & arg0, const std::vector<std::string>& operando, int numeroDaLinha) {}
 
-void Montador::adicionarTokenDaLinha(TokensDaLinha linha){
-	Montador::listaDeTokens.push_back(linha);
+void Tradutor::adicionarTokenDaLinha(TokensDaLinha linha){
+	Tradutor::listaDeTokens.push_back(linha);
 }
 
-void Montador::PreProcessamento(std::string conteudoArquivo) {
+void Tradutor::PreProcessamento(std::string conteudoArquivo) {
 
 	conteudoArquivo = RemoveComentarios(conteudoArquivo);
 	conteudoArquivo = RemoveTabulacoes(conteudoArquivo);
@@ -26,7 +26,7 @@ void Montador::PreProcessamento(std::string conteudoArquivo) {
 
 }
 
-std::string Montador::RemoveComentarios(std::string arquivoConteudo) {
+std::string Tradutor::RemoveComentarios(std::string arquivoConteudo) {
 	std::string::size_type posicaoComentario = posicaoComentario = arquivoConteudo.find(';');
 	while (posicaoComentario != std::string::npos) {
 
@@ -41,12 +41,12 @@ std::string Montador::RemoveComentarios(std::string arquivoConteudo) {
 	return arquivoConteudo;
 }
 
-std::string Montador::RemoveTabulacoes(std::string fileString) {
+std::string Tradutor::RemoveTabulacoes(std::string fileString) {
 	fileString = std::regex_replace(fileString, std::regex("\t"), " ");
 	return fileString;
 }
 
-std::string Montador::RemoveEspacosEmBrancoExtras(std::string arquivoConteudo) {
+std::string Tradutor::RemoveEspacosEmBrancoExtras(std::string arquivoConteudo) {
 
 	//remove duplos espaços
 	std::string::size_type posicaoEspaco = arquivoConteudo.find("  ");
@@ -96,7 +96,7 @@ std::string Montador::RemoveEspacosEmBrancoExtras(std::string arquivoConteudo) {
 	return arquivoConteudo;
 }
 
-std::string Montador::JuntaLabelEOperacao(std::string arquivo) {
+std::string Tradutor::JuntaLabelEOperacao(std::string arquivo) {
 	std::string::size_type posicao = arquivo.find(":\n");
 	while (posicao != std::string::npos) {
 		arquivo[posicao + 1] = ' ';
@@ -105,7 +105,7 @@ std::string Montador::JuntaLabelEOperacao(std::string arquivo) {
 	return arquivo;
 }
 
-void Montador::SeparaTokens(std::string conteudoArquivo) {
+void Tradutor::SeparaTokens(std::string conteudoArquivo) {
 	TokensDaLinha tokens_linha;
 	int tam_arquivo = conteudoArquivo.size();
 	char proximo_char;
@@ -176,7 +176,7 @@ void Montador::SeparaTokens(std::string conteudoArquivo) {
 	}
 }
 
-void Montador::TraducaoParaIA32() {
+std::string Tradutor::TraducaoParaIA32() {
 	std::string conteudoSaida;
 	std::unordered_map<std::string, std::string> simbolos;
 	std::unordered_map<std::string, std::string>::const_iterator simbolo_especifico;
@@ -346,6 +346,7 @@ void Montador::TraducaoParaIA32() {
 			conteudoSaida.append("idiv [" + arg1 + "]\n");
 		}
 	}
-	printf("a");
+
+	return(conteudoSaida);
 }
 
