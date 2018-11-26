@@ -1,0 +1,7 @@
+g++ -o programa Trab.cpp Tradutor.cpp -std=c++11
+
+no windows:
+programa arquivo.asm
+
+no linux:
+./programa arquivo.asm
