@@ -273,6 +273,7 @@ std::string Tradutor::TraducaoParaIA32() {
 		else if (arg0 == "C_INPUT") {
 			conteudoSaida.append("push " + arg1 + "\n");
 			conteudoSaida.append("call C_INPUT\n");
+			conteudoSaida.append("endl\n");
 		}
 		// input de string com o tamanho determinado pelo segundo operando
 		else if (arg0 == "S_INPUT") {
@@ -291,6 +292,7 @@ std::string Tradutor::TraducaoParaIA32() {
 		else if (arg0 == "C_OUTPUT") {
 			conteudoSaida.append("push " + arg1 + "\n");
 			conteudoSaida.append("call C_OUTPUT\n");
+			conteudoSaida.append("endl\n");
 		}
 		// output de string com o tamanho determinado pelo segundo operando
 		else if (arg0 == "S_OUTPUT") {
@@ -557,12 +559,12 @@ std::string Tradutor::adicionaCodigoPadrao(){
 	conteudoSaida.append("\n");
 
 	conteudoSaida.append("INPUT: ; INPUT(* int) \n");
-	conteudoSaida.append("	enter 6,0\n");
-	conteudoSaida.append("	push EAX\n");
+	conteudoSaida.append("	enter 10,0\n");
 	conteudoSaida.append("	push EBX\n");
 	conteudoSaida.append("	push ECX\n");
 	conteudoSaida.append("	push EDX\n");
 	conteudoSaida.append("	mov dword [EBP-6], 0\n");
+	conteudoSaida.append("	mov dword [EBP-10], 0\n");
 	conteudoSaida.append("	mov byte [EBP-2], 0\n");
 	conteudoSaida.append("	mov EAX, 3\n");
 	conteudoSaida.append("	mov EBX, 0\n");
@@ -580,6 +582,7 @@ std::string Tradutor::adicionaCodigoPadrao(){
 	conteudoSaida.append("	sub ECX, 1\n");
 	conteudoSaida.append("	mov EDX, 1\n");
 	conteudoSaida.append("	int 80h\n");
+	conteudoSaida.append("	inc DWORD [ebp-10]\n");
 	conteudoSaida.append("pli:\n");
 	conteudoSaida.append("	mov ESI, [EBP-6]\n");
 	conteudoSaida.append("	cmp byte [EBP-1], 0xa   ;confere se eh fim de linha\n");
@@ -608,7 +611,7 @@ std::string Tradutor::adicionaCodigoPadrao(){
 	conteudoSaida.append("	pop EDX\n");
 	conteudoSaida.append("	pop ECX\n");
 	conteudoSaida.append("	pop EBX\n");
-	conteudoSaida.append("	pop EAX\n");
+	conteudoSaida.append("	mov EAX, [ebp-10]\n");
 	conteudoSaida.append("	leave\n");
 	conteudoSaida.append("ret 4\n");
 	conteudoSaida.append("\n");
@@ -616,7 +619,9 @@ std::string Tradutor::adicionaCodigoPadrao(){
 
 	conteudoSaida.append("OUTPUT: ; OUTPUT(**char, int) \n");
 	conteudoSaida.append("	enter 4,0\n");
-	conteudoSaida.append("	pusha\n");
+	conteudoSaida.append("	push EBX\n");
+	conteudoSaida.append("	push ECX\n");
+	conteudoSaida.append("	push EDX\n");
 	conteudoSaida.append("	mov ECX, 0\n");
 	conteudoSaida.append("	mov EAX, [EBP+8]\n");
 	conteudoSaida.append("	mov EBX, [EBP+12]\n");
@@ -651,7 +656,9 @@ std::string Tradutor::adicionaCodigoPadrao(){
 	conteudoSaida.append("	int 80h\n");
 	conteudoSaida.append("	endl\n");
 	conteudoSaida.append("	add EAX,1\n");
-	conteudoSaida.append("	popa\n");
+	conteudoSaida.append("	pop EDX\n");
+	conteudoSaida.append("	pop ECX\n");
+	conteudoSaida.append("	pop EBX\n");
 	conteudoSaida.append("	leave\n");
 	conteudoSaida.append("ret 8\n");
 	conteudoSaida.append("\n");
