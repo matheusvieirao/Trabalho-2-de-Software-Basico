@@ -181,25 +181,28 @@ std::string Tradutor::TraducaoParaIA32() {
 	std::unordered_map<std::string, std::string> simbolos;
 	std::unordered_map<std::string, std::string>::const_iterator simbolo_especifico;
 	std::string label, arg0, arg1, arg2;
+	//funcoes usadas:
+	bool output_n = false;
+	bool swap_b = false;
+	bool multiplic = false;
 
 	//int tamanhoLista = listaDeTokens.size();
 	//for (int i = 0; i < tamanhoLista; i++) {
 
-	//A primeira passagem é para salvar os valores associados com EQU para que IF funcione independente da posição que for colocado
+	//A primeira passagem é para salvar os valores associados com EQU para que IF e CONST funcione
 	for (auto linha = listaDeTokens.begin(); linha != listaDeTokens.end(); linha++) {
 		if (linha->arg0 == "EQU") {
 			simbolos.emplace(linha->label, linha->arg1);
 		}
 	}
 
+	conteudoSaida.append("global _start\n\n");
+
 	for (auto linha = listaDeTokens.begin(); linha != listaDeTokens.end(); linha++) {
 		label = linha->label;
 		arg0 = linha->arg0;
 		arg1 = linha->arg1;
 		arg2 = linha->arg2;
-
-
-		
 
 		//apenas retira o ":"
 		if (arg0 == "EQU") {
@@ -222,16 +225,22 @@ std::string Tradutor::TraducaoParaIA32() {
 				}
 			}
 		}
+		// TODO do jeito que esta, "VALOR: CONST "hello world"" é convertido para "VALOR DD "hello world"". Ver se esta certo ou se deveria ser DB 
 		else if (arg0 == "CONST") {
-			// TODO ver qual opcao é a certa
-			//conteudoSaida.append("%assign " + label + ' ' + arg1 + '\n');
-			conteudoSaida.append(label + " DW " + arg1 + '\n');
+			simbolo_especifico = simbolos.find(arg1);
+			//entra se encontrou o simbolo na tabela de simbolos
+			if (simbolo_especifico != simbolos.end()) {
+				conteudoSaida.append(label + " DD " + simbolo_especifico->second + '\n');
+			}
+			else {
+				conteudoSaida.append(label + " DD " + arg1 + '\n');
+			}
 		}
 		// "PTR: SPACE 3" fica "PTR RESB 3"
 		else if (arg0 == "SPACE") {
 			if (arg1 == "")
 				arg1 = '1';
-			conteudoSaida.append(label + " RESB " + arg1 + '\n');
+			conteudoSaida.append(label + " RESD " + arg1 + '\n');
 		}
 		//colocamos essa condição aqui pq EQU, CONST e SPACE usam label de uma meneira diferente das outras instruções
 		else if (label != "") {
@@ -255,61 +264,69 @@ std::string Tradutor::TraducaoParaIA32() {
 		}
 		// le numero inteiro com sinal de 32 bits
 		else if (arg0 == "INPUT") {
+			conteudoSaida.append("push eax\n");
 			conteudoSaida.append("mov eax, 3\n"); // 3 é a instrução de read
 			conteudoSaida.append("mov ebx, 0\n");
 			conteudoSaida.append("mov ecx, " + arg1 + "\n");
 			conteudoSaida.append("mov edx, 4\n"); //inteiro tem 4 bytes
 			conteudoSaida.append("int 80h\n");
+			conteudoSaida.append("pop eax\n");
 		}
 		// um char de 8 bits
 		else if (arg0 == "C_INPUT") {
+			conteudoSaida.append("push eax\n");
 			conteudoSaida.append("mov eax, 3\n");
 			conteudoSaida.append("mov ebx, 0\n");
 			conteudoSaida.append("mov ecx, " + arg1 + "\n");
 			conteudoSaida.append("mov edx, 1\n"); //char tem 1 byte
 			conteudoSaida.append("int 80h\n");
+			conteudoSaida.append("pop eax\n");
 		}
 		// input de string com o tamanho determinado pelo segundo operando
 		else if (arg0 == "S_INPUT") {
+			conteudoSaida.append("push eax\n");
 			conteudoSaida.append("mov eax, 3\n");
 			conteudoSaida.append("mov ebx, 0\n");
 			conteudoSaida.append("mov ecx, " + arg1 + "\n");
 			conteudoSaida.append("mov edx, " + arg2 + "\n"); //tamanho da string
 			conteudoSaida.append("int 80h\n");
+			conteudoSaida.append("pop eax\n");
 		}
 		// le numero inteiro com sinal de 32 bits
 		else if (arg0 == "OUTPUT") {
-			conteudoSaida.append("mov eax, 4\n"); // 4 é a instrução de write
-			conteudoSaida.append("mov ebx, 1\n");
-			conteudoSaida.append("mov ecx, " + arg1 + "\n");
-			conteudoSaida.append("mov edx, 4\n"); //inteiro tem 4 bytes
-			conteudoSaida.append("int 80h\n");
+			conteudoSaida.append("mov ecx, [" + arg1 + "]\n");
+			conteudoSaida.append("call output_n\n");
+			output_n = true;
 		}
 		// um char de 8 bits
 		else if (arg0 == "C_OUTPUT") {
+			conteudoSaida.append("push eax\n");
 			conteudoSaida.append("mov eax, 4\n");
 			conteudoSaida.append("mov ebx, 1\n");
 			conteudoSaida.append("mov ecx, " + arg1 + "\n");
 			conteudoSaida.append("mov edx, 1\n"); //char tem 1 byte
 			conteudoSaida.append("int 80h\n");
+			conteudoSaida.append("pop eax\n");
 		}
 		// output de string com o tamanho determinado pelo segundo operando
 		else if (arg0 == "S_OUTPUT") {
+			conteudoSaida.append("push eax\n");
 			conteudoSaida.append("mov eax, 3\n");
 			conteudoSaida.append("mov ebx, 0\n");
 			conteudoSaida.append("mov ecx, " + arg1 + "\n");
 			conteudoSaida.append("mov edx, " + arg2 + "\n"); // tamanho da string
 			conteudoSaida.append("int 80h\n");
+			conteudoSaida.append("pop eax\n");
 		}
 		// carrega no acumulador (EAX) o valor (assume-se que DWORD) que esta em um endereco de memoria
 		else if (arg0 == "LOAD") {
 			conteudoSaida.append("mov DWORD eax, " + arg1 + "\n");
 		}
 		else if (arg0 == "STORE") {
-			conteudoSaida.append("mov [" + arg1 + "], eax\n");
+			conteudoSaida.append("mov DWORD [" + arg1 + "], eax\n");
 		}
 		else if (arg0 == "COPY") {
-			conteudoSaida.append("mov " + arg2 + ", " + arg1 + "\n");
+			conteudoSaida.append("mov DWORD " + arg2 + ", " + arg1 + "\n");
 		}
 		//pulo incondicional
 		else if (arg0 == "JMP") {
@@ -338,7 +355,22 @@ std::string Tradutor::TraducaoParaIA32() {
 		}
 		// imul multiplica (com sinal) EAX pelo conteudo na memoria da variável e salva em EDX:EAX
 		else if (arg0 == "MULT") {
-			conteudoSaida.append("imul [" + arg1 + "]\n");
+		conteudoSaida.append("imul [" + arg1 + "]\n");
+		conteudoSaida.append("cmp edx FFFFh\n"); //TODO ver se da certo isso
+		conteudoSaida.append("jz sem_overflow\n");
+		conteudoSaida.append("cmp edx 0\n"); //TODO ver se da certo isso
+		conteudoSaida.append("jz sem_overflow\n");
+
+		//mensagem de overflow
+		conteudoSaida.append("push eax\n");
+		conteudoSaida.append("mov eax, 3\n");
+		conteudoSaida.append("mov ebx, 0\n");
+		conteudoSaida.append("mov ecx, msg_overflow\n");
+		conteudoSaida.append("mov edx, size_msg_overflow\n"); // tamanho da string
+		conteudoSaida.append("int 80h\n");
+		conteudoSaida.append("pop eax\n");
+
+		conteudoSaida.append("sem_overflow: mov eax, eax\n"); //nao faz nada essa instrucao. só pra ser usada no pulo
 		}
 		// divide EDX:EAX pelo conteudo na memória da variavel e salva em EAX e o resto em EDX .acc / []
 		else if (arg0 == "DIV") {
@@ -346,6 +378,24 @@ std::string Tradutor::TraducaoParaIA32() {
 			conteudoSaida.append("idiv [" + arg1 + "]\n");
 		}
 	}
+
+	
+	if (output_n) {
+		swap_b = true;
+		conteudoSaida.append("\n\nsection .bss\n");
+		conteudoSaida.append("	OUT_N RESB 12\n");
+		conteudoSaida.append("\nsection .text\n");
+		conteudoSaida.append("output_n:\n	push eax\n	; mover de ecx para dx : ax(dividendo)\n	mov edx, ecx\n	shr edx, 16; ver se  right mesmo\n	mov eax, ecx\n\n	xor esi, esi; contador de loop / casa decimal\n	mov bx, 10; divisor\n\n	div_10 : \n	idiv bx\n\n	; Colocar o resto(dx) no vetor.\n	; ver se o quociente(ax) j  0\n	; se nao for, dividir de novo ax por 10.\n	; (provavelmente isso nao funciona pra numeros muito grandes ja que vamos perder parte do quociente na divisao nesses casos.)\n	add dx, '0'; soma com o valor de 0 em ASCII\n	mov BYTE[OUT_N + esi], dl; salva na string\n			xor dx, dx\n	inc esi\n	cmp ax, 0\n	jnz div_10\n\n	mov BYTE[OUT_N + esi], 0dh\n	inc esi\n	mov BYTE[OUT_N + esi], 0ah\n	inc esi\n\n	mov ebx, OUT_N\n	mov ecx, esi\n	sub ecx, 3\n	call swap_b; ebx contem o endereço da string e acx quantos bytes vao ser invertidos\n\n	mov eax, 4\n	mov ebx, 1\n	mov ecx, OUT_N\n	mov edx, esi\n	int 80h\n	pop eax\n	ret\n");		
+	}
+	if (swap_b) {
+		conteudoSaida.append("\nswap_b :\n	push esi\n	xor esi, esi; esi vai crescendo do inicio ao fim e ecx do fim ao inicio\n\n	denovo :\n	mov BYTE dh, [ebx + esi]\n	mov BYTE dl, [ebx + ecx]\n	mov[ebx + ecx], dh\n	mov[ebx + esi], dl\n\n	inc esi\n	sub ecx, 1\n\n	cmp ecx, esi\n	jg denovo\n\n	pop esi\n	ret\n");
+	}
+	if (multiplic) {
+		conteudoSaida.append("msg_overflow DB 'Overflow na multiplicacao (o resultado deve ter ate 32 bits)', 0dH, 0aH\n");
+		conteudoSaida.append("size_msg_overflow EQU $-msg_overflow\n\n");
+	}
+
+
 
 	return(conteudoSaida);
 }
