@@ -35,6 +35,8 @@ public:
 
 	std::string TraducaoParaIA32(); // Para funcionar corretamente listaDeTokens deve já estar preenchida corretamente (depois do método PreProcessamento)
 
+	std:: string adicionaCodigoPadrao();
+
 	Tradutor();
 	~Tradutor();
 };
