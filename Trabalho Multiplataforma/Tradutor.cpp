@@ -251,14 +251,14 @@ std::string Tradutor::TraducaoParaIA32() {
 		
 		
 	if (arg0 == "SECTION") {
-			if (arg1 == "TEXT") {
-				conteudoSaida.append("section .text\n_start:\n");
-			}
-			else if (arg1 == "BSS") {
+		//std:: cout << arg1 ; 
+			if (arg1 == "BSS") {
 				conteudoSaida.append("section .bss\n");
 			}
 			else if (arg1 == "DATA") {
 				conteudoSaida.append("section .data\n");
+			}else {//(arg1 == "TEXT") {
+				conteudoSaida.append("section .text\n_start:\n");
 			}
 		}
 		else if (arg0 == "STOP") {
@@ -380,7 +380,7 @@ std::string Tradutor::adicionaCodigoPadrao(){
 	conteudoSaida.append("section .bss\n");
 	conteudoSaida.append("	AUX1212:  resb 100\n");
 
-	
+
 	conteudoSaida.append("section .text\n");
 
 	conteudoSaida.append("\n");
