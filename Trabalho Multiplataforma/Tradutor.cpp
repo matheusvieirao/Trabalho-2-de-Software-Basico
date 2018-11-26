@@ -315,17 +315,17 @@ std::string Tradutor::TraducaoParaIA32() {
 		}
 		// pula se acumulador < 0
 		else if (arg0 == "JMPN") {
-			conteudoSaida.append("cmp eax, 0");
+			conteudoSaida.append("cmp eax, 0\n");
 			conteudoSaida.append("jl " + arg1 + "\n");
 		}
 		// pula se acumulador > 0
 		else if (arg0 == "JMPP") {
-			conteudoSaida.append("cmp eax, 0");
+			conteudoSaida.append("cmp eax, 0\n");
 			conteudoSaida.append("jg " + arg1 + "\n");
 		}
 		// pula se acumulador == 0
 		else if (arg0 == "JMPZ") {
-			conteudoSaida.append("cmp eax, 0");
+			conteudoSaida.append("cmp eax, 0\n");
 			conteudoSaida.append("jz " + arg1 + "\n");
 		}
 		else if (arg0 == "ADD") {
@@ -367,6 +367,20 @@ std::string Tradutor::TraducaoParaIA32() {
 
 std::string Tradutor::adicionaCodigoPadrao(){
 	std::string conteudoSaida="";
+
+	conteudoSaida.append("section .data\n");
+
+	conteudoSaida.append("	;linhas adicionadas automaticamente para avisar de erros durante a execução\n");
+	conteudoSaida.append("	overflow101010:  db \"overflow\", 0xa\n");
+	conteudoSaida.append("	TAMoverflow101010 EQU $-overflow101010\n");
+	conteudoSaida.append("	numInvalido101010:  db \"Esperava-se um numero, um caracter invalido foi digitado\", 0xa\n");
+	conteudoSaida.append("	TAMnumInvalido101010 EQU $-numInvalido101010\n");
+	conteudoSaida.append("	endlineeee: db 0xa\n\n");
+
+	conteudoSaida.append("section .bss\n");
+	conteudoSaida.append("	AUX1212:  resb 100\n");
+
+	
 	conteudoSaida.append("section .text\n");
 
 	conteudoSaida.append("\n");
@@ -643,17 +657,8 @@ std::string Tradutor::adicionaCodigoPadrao(){
 	conteudoSaida.append("\n");
 	conteudoSaida.append("\n");;
 
-	conteudoSaida.append("section .data\n");
 
-	conteudoSaida.append("	;linhas adicionadas automaticamente para avisar de erros durante a execução\n");
-	conteudoSaida.append("	overflow101010:  db \"overflow\", 0xa\n");
-	conteudoSaida.append("	TAMoverflow101010 EQU $-overflow101010\n");
-	conteudoSaida.append("	numInvalido101010:  db \"Esperava-se um numero, um caracter invalido foi digitado\", 0xa\n");
-	conteudoSaida.append("	TAMnumInvalido101010 EQU $-numInvalido101010\n");
-	conteudoSaida.append("	endlineeee: db 0xa\n\n");
 
-	conteudoSaida.append("section .bss\n");
-	conteudoSaida.append("	AUX1212:  resb 100\n");
 
 	return conteudoSaida;
 }
