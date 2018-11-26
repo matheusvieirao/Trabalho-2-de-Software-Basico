@@ -1,6 +1,9 @@
 /* Trabalho 2 de SB.cpp : Este arquivo contém a função 'main'. 
 A execução do programa começa e termina ali.
 
+	Nikson Bernardes - 150143231
+	Matheus Vieira - 130126861
+
 */
 #include <iostream>
 #include <string>

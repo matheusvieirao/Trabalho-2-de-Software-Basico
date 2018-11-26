@@ -1,3 +1,9 @@
+Trabalho 2 de SB - 2018/2
+Alunos: Nikson Bernardes Ferreira - 15/0143231
+	Matheus Vieira - 13/0126861
+
+
+
 g++ -o programa Trab.cpp Tradutor.cpp -std=c++11
 
 no windows:
