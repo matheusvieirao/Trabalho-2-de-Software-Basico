@@ -294,7 +294,7 @@ std::string Tradutor::TraducaoParaIA32() {
 		}
 		// le numero inteiro com sinal de 32 bits
 		else if (arg0 == "OUTPUT") {
-			conteudoSaida.append("mov ecx, [" + arg1 + "]\n");
+			conteudoSaida.append("mov ecx, " + arg1 + "\n");
 			conteudoSaida.append("call output_n\n");
 			output_n = true;
 		}
@@ -385,10 +385,7 @@ std::string Tradutor::TraducaoParaIA32() {
 		conteudoSaida.append("\n\nsection .bss\n");
 		conteudoSaida.append("	OUT_N RESB 12\n");
 		conteudoSaida.append("\nsection .text\n");
-		conteudoSaida.append("output_n:\n	push eax\n	; mover de ecx para dx : ax(dividendo)\n	mov edx, ecx\n	shr edx, 16; ver se  right mesmo\n	mov eax, ecx\n\n	xor esi, esi; contador de loop / casa decimal\n	mov bx, 10; divisor\n\n	div_10 : \n	idiv bx\n\n	; Colocar o resto(dx) no vetor.\n	; ver se o quociente(ax) j  0\n	; se nao for, dividir de novo ax por 10.\n	; (provavelmente isso nao funciona pra numeros muito grandes ja que vamos perder parte do quociente na divisao nesses casos.)\n	add dx, '0'; soma com o valor de 0 em ASCII\n	mov BYTE[OUT_N + esi], dl; salva na string\n			xor dx, dx\n	inc esi\n	cmp ax, 0\n	jnz div_10\n\n	mov BYTE[OUT_N + esi], 0dh\n	inc esi\n	mov BYTE[OUT_N + esi], 0ah\n	inc esi\n\n	mov ebx, OUT_N\n	mov ecx, esi\n	sub ecx, 3\n	call swap_b; ebx contem o endereço da string e acx quantos bytes vao ser invertidos\n\n	mov eax, 4\n	mov ebx, 1\n	mov ecx, OUT_N\n	mov edx, esi\n	int 80h\n	pop eax\n	ret\n");		
-	}
-	if (swap_b) {
-		conteudoSaida.append("\nswap_b :\n	push esi\n	xor esi, esi; esi vai crescendo do inicio ao fim e ecx do fim ao inicio\n\n	denovo :\n	mov BYTE dh, [ebx + esi]\n	mov BYTE dl, [ebx + ecx]\n	mov[ebx + ecx], dh\n	mov[ebx + esi], dl\n\n	inc esi\n	sub ecx, 1\n\n	cmp ecx, esi\n	jg denovo\n\n	pop esi\n	ret\n");
+		conteudoSaida.append("\n;ecx contem o endereço do numero a ser impresso\noutput_n:\n    push eax\n    xor esi, esi ; contador de loop / casa decimal\n\n    ;;;;pega o modulo;;;;\n    mov eax, [ecx]    \n    cmp eax, 0\n    jge positivo\n    imul eax, -1\n    mov BYTE [OUT_N], '-'\n    inc esi\n    \n    ;;;;divisao;;;;\n    positivo:\n    mov edx, eax\n    shr edx, 16 ;mover divisor para dx:ax (dividendo)\n    mov bx, 10 ;divisor\n    div_10:\n    idiv bx\n    add dx, '0' ; soma com o valor de 0 em ASCII\n    mov BYTE [OUT_N + esi], dl  ;salva na string o resto da divisao por 10\n    inc esi\n    xor dx, dx\n    cmp ax, 0 ;ver se o quociente (ax) é zero\n    jnz div_10 ;se nao for, dividir de novo ax por 10. \n	\n    ;;;;marcando fim da string;;;;\n    mov BYTE [OUT_N + esi], 0dh \n    inc esi\n    mov BYTE [OUT_N + esi], 0ah\n    inc esi\n    \n    ;;;;invertendo posicao dos numeros na string;;;;\n    mov ecx, esi\n    sub ecx, 3 ;ultimo char da string\n    xor ebx, ebx ;ebx vai crescendo do inicio ao fim e ecx do fim ao inicio\n    mov BYTE dl, [OUT_N] ;para ver se é negativo\n    cmp dl, '-'\n    jne denovo\n    inc ebx\n    denovo: \n    mov BYTE dh, [OUT_N + ebx]\n    mov BYTE dl, [OUT_N + ecx]\n    mov [OUT_N + ecx], dh\n    mov [OUT_N + ebx], dl\n    inc ebx\n    sub ecx, 1\n    cmp ecx, ebx\n    jg denovo   \n    \n    ;;;;imprime;;;;\n    mov eax, 4\n    mov ebx, 1\n    mov ecx, OUT_N\n    mov edx, esi\n    int 80h\n    pop eax\nret \n");		
 	}
 	if (multiplic) {
 		conteudoSaida.append("msg_overflow DB 'Overflow na multiplicacao (o resultado deve ter ate 32 bits)', 0dH, 0aH\n");
