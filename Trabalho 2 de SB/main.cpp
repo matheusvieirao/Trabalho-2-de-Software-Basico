@@ -14,8 +14,8 @@ int main(int argc, char* argv[]) {
 		return -1;
 	}
 	std::string nomeArquivo = argv[1]; //nome do arquivo de entrada .asm
-	std::ifstream fileAsm(nomeArquivo); //ptr pro arquivo de entrada .asm
-	std::ofstream fileS ("arquivo.s"); //ptr pro arquivo de saida .s
+	std::ifstream fileAsm; //ptr pro arquivo de entrada .asm
+	std::ofstream fileS; //ptr pro arquivo de saida .s
 	std::stringstream  conteudoArquivoAsm; //conteudo arquivo .asm no assembly inventado
 	std::string conteudoArquivoIA32; //conteudo arquivo .s traduzido pra IA32
 	Tradutor tradutor; //classe que contem as funções que fazem a tradução do assembly inventado pro IA-32
@@ -27,7 +27,7 @@ int main(int argc, char* argv[]) {
 		fileAsm.open(nomeArquivo + ".asm");
 		fileS.open(nomeArquivo + ".s"); 
 	}else{
-		fileAsm.open(nomeArquivo + ".asm");
+		fileAsm.open(nomeArquivo);
 		fileS.open(nomeArquivo.substr(0,pos) + ".s");
 	}
 
