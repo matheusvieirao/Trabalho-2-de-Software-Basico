@@ -283,7 +283,7 @@ std::string Tradutor::TraducaoParaIA32() {
 		// le numero inteiro com sinal de 32 bits
 		else if (arg0 == "OUTPUT") {
 			conteudoSaida.append("push AUX1212\n");
-			conteudoSaida.append("push [" + arg1 + "]\n");
+			conteudoSaida.append("push DWORD [" + arg1 + "]\n");
 			conteudoSaida.append("call OUTPUT\n");
 			output_n = true;
 		}
@@ -646,9 +646,9 @@ std::string Tradutor::adicionaCodigoPadrao(){
 	conteudoSaida.append("section .data\n");
 
 	conteudoSaida.append("	;linhas adicionadas automaticamente para avisar de erros durante a execução\n");
-	conteudoSaida.append("	overflow101010:  db ""overflow"", 0xa\n");
+	conteudoSaida.append("	overflow101010:  db \"overflow\", 0xa\n");
 	conteudoSaida.append("	TAMoverflow101010 EQU $-overflow101010\n");
-	conteudoSaida.append("	numInvalido101010:  db ""Esperava-se um numero, um caracter invalido foi digitado"", 0xa\n");
+	conteudoSaida.append("	numInvalido101010:  db \"Esperava-se um numero, um caracter invalido foi digitado\", 0xa\n");
 	conteudoSaida.append("	TAMnumInvalido101010 EQU $-numInvalido101010\n");
 	conteudoSaida.append("	endlineeee: db 0xa\n\n");
 
